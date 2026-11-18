@@ -19,7 +19,8 @@ quiz = {
     "difficulty" : 1,
     "operation" : "+",
     "answer" : 0,
-    "question" : 1
+    "question" : 1,
+    "attempt" : 1
 }
 
 # === FUNCTIONS ===
@@ -58,10 +59,12 @@ def displayProblem(difficulty):
     quiz["difficulty"] = difficulty
     quiz["operation"] = operation
     quiz["answer"] = answer
+    quiz["attempt"] = 1
 
     problem_label.config(text=f"{num1} {operation} {num2} = ?")
     score_label.config(text=f"Score: {score}")
     question_label.config(text=f"Question {quiz["question"]} out of 10")
+    feedback_label.config(text="")
     answer_entry.delete(0, END)
 
 # The function that checks the user's answer and gives feedback accordingly
@@ -72,14 +75,26 @@ def isCorrect():
     except ValueError:
         feedback_label.config(text="Please enter a number!")
         return
+
+    answer_entry.delete(0, END)
     
     if user_answer == quiz["answer"]:
-        score += 10
+        if quiz["attempt"] == 1:
+            score += 10
+        else:
+            score += 5
         feedback_label.config(text="Correct!")
+        score_label.config(text=f"Score: {score}")
+        quiz["question"] += 1
+
+    elif quiz["attempt"] == 1:
+        quiz["attempt"] = 2
+        feedback_label.config(text="Wrong! Try again for half points.")
+        return
+
     else:
-        feedback_label.config(text=f"Wrong! The answer {quiz["answer"]}.")
-    
-    quiz["question"] += 1
+        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}.")
+        quiz["question"] += 1
 
     if quiz["question"] > 10:
         displayResults()
@@ -126,12 +141,12 @@ score_label = Label(easy_frame, text=f"Score: {score}", font=("Lucida Console", 
 score_label.pack(pady=10)
 problem_label = Label(easy_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
 problem_label.pack(pady=10)
-feedback_label = Label(easy_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
-feedback_label.pack(pady=10)
 answer_entry = Entry(easy_frame, font=("Lucida Console", 12), bg=BG, fg="#594529")
 answer_entry.pack(pady=10)
 submit_button = Button(easy_frame, text="Submit", font=("Lucida Console", 12), bg=BG, fg="#594529", command=isCorrect)
 submit_button.pack(pady=10)
+feedback_label = Label(easy_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+feedback_label.pack(pady=10)
 
 easy_frame.place(x=0, y=0, width=500, height=700)
 
