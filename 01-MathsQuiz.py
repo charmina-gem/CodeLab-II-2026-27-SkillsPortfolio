@@ -1,5 +1,6 @@
 from tkinter import *
-import random 
+from tkinter import messagebox
+import random
 
 # === START SETUP ===
 
@@ -93,7 +94,7 @@ def isCorrect():
         feedback_label.config(text="Wrong! Try again for half points.")
 
     else:
-        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}")
+        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}.")
         quiz["question"] += 1
         submit_button.config(text="Next", command=nextQuestion)
 
@@ -123,12 +124,20 @@ def displayResults():
     rank_label.config(text=f"Your Overall Rank: {rank_score}")
     results_frame.tkraise()
 
+# The function that starts and sets the quiz
 def startQuiz(difficulty, frame):
     global score
     score = 0
     quiz["question"] = 1
     displayProblem(difficulty)
     switch_to_frame(frame)
+
+def replayQuiz():
+    answer = messagebox.askyesno("Play Again", "Shall we play again?")
+    if answer:
+        displayMenu()
+    else:
+        rank_label.config(text="Until next time!")
 
 def switch_to_frame(frame):
     frame.tkraise()
@@ -185,6 +194,8 @@ result_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG,
 result_label.pack(pady=10)
 rank_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
 rank_label.pack(pady=10)
+replay_button = Button(results_frame, text="Would thou like to play again?", font=("Lucida Console", 12), bg=BG, fg="#594529", command=replayQuiz)
+replay_button.pack(pady=10)
 
 results_frame.place(x=0, y=0, width=500, height=700)
 
