@@ -1,4 +1,4 @@
-from tkinter import *   
+from tkinter import *
 import random 
 
 # === START SETUP ===
@@ -25,15 +25,21 @@ def randomInt(difficulty):
     elif difficulty == 2:
         return random.randint(10, 99)
     elif difficulty == 3:
-        return random.randint(100, 999)
+        return random.randint(1000, 9999)
 
+# The function that randomizes the operation in the questions
 def decideOperation():
     if random.randint(1, 2) == 1:
         return '+'
     else:
         return '-'
 
-# def displayProblem():
+# Displays the problem
+def displayProblem(difficulty):
+    num1 = randomInt(difficulty)
+    num2 = randomInt(difficulty)
+    operation = decideOperation()
+    problem_label.config(text=f"{num1} {operation} {num2} = ?")
 
 # def isCorrect():
 
@@ -52,7 +58,7 @@ menu_label = Label(menu_frame, text="Please select thy difficulty:", font=("Luci
 menu_label.pack(pady=5)
 
 # Easy Button
-easy_button = Button(menu_frame, text="Easy", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: switch_to_frame(easy_frame))
+easy_button = Button(menu_frame, text="Easy", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [displayProblem(1), switch_to_frame(easy_frame)])
 easy_button.pack(pady=10)
 
 # Moderate Button
@@ -75,6 +81,8 @@ easy_question = Label(easy_frame, text="Question 1 of 10", font=("Lucida Console
 easy_question.pack(pady=10)
 score_label = Label(easy_frame, text=f"Score: {score}", font=("Lucida Console", 12), bg=BG, fg="#594529")
 score_label.pack(pady=10)
+problem_label = Label(easy_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+problem_label.pack(pady=10)
 
 easy_frame.place(x=0, y=0, width=500, height=700)
 
