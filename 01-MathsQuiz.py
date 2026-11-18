@@ -86,23 +86,49 @@ def isCorrect():
         feedback_label.config(text="Correct!")
         score_label.config(text=f"Score: {score}")
         quiz["question"] += 1
+        submit_button.config(text="Next", command=nextQuestion)
 
     elif quiz["attempt"] == 1:
         quiz["attempt"] = 2
         feedback_label.config(text="Wrong! Try again for half points.")
-        return
 
     else:
-        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}.")
+        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}")
         quiz["question"] += 1
+        submit_button.config(text="Next", command=nextQuestion)
 
-    if quiz["question"] > 10:
+# This function moves to the next question in the quiz
+def nextQuestion():
+    submit_button.config(text="Submit", command=isCorrect)
+    if quiz["question"] == 11:
         displayResults()
     else:
         displayProblem(quiz["difficulty"])
 
+# Outputs the user's final score out of 100 and gives a rank (e.g. A+ for a score over 90)
 def displayResults():
+    global score
+    if score > 90:
+        rank_score = "A+"
+    elif score >= 80:
+        rank_score = "A"
+    elif score >= 70:
+        rank_score = "B"
+    elif score >= 50:
+        rank_score = "C"
+    else:
+        rank_score = "F"
+    
+    result_label.config(text=f"Your Score: {score} out of 100")
+    rank_label.config(text=f"Your Overall Rank: {rank_score}")
+    results_frame.tkraise()
+
+def startQuiz(difficulty, frame):
+    global score
     score = 0
+    quiz["question"] = 1
+    displayProblem(difficulty)
+    switch_to_frame(frame)
 
 def switch_to_frame(frame):
     frame.tkraise()
@@ -116,15 +142,15 @@ menu_label = Label(menu_frame, text="Please select thy difficulty:", font=("Luci
 menu_label.pack(pady=5)
 
 # Easy Button
-easy_button = Button(menu_frame, text="Easy", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [displayProblem(1), switch_to_frame(easy_frame)])
+easy_button = Button(menu_frame, text="Easy", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(1, easy_frame)])
 easy_button.pack(pady=10)
 
 # Moderate Button
-moderate_button = Button(menu_frame, text="Moderate", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [displayProblem(2), switch_to_frame(moderate_frame)])
+moderate_button = Button(menu_frame, text="Moderate", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(2, moderate_frame)])
 moderate_button.pack(pady=10)
 
 # Advanced Button
-advanced_button = Button(menu_frame, text="Advanced", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [displayProblem(3), switch_to_frame(advanced_frame)])
+advanced_button = Button(menu_frame, text="Advanced", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(3, advanced_frame)])
 advanced_button.pack(pady=10)
 
 menu_frame.place(x=0, y=0, width=500, height=700)
@@ -149,6 +175,18 @@ feedback_label = Label(easy_frame, text="", font=("Lucida Console", 12), bg=BG, 
 feedback_label.pack(pady=10)
 
 easy_frame.place(x=0, y=0, width=500, height=700)
+
+# === RESULTS FRAME ===
+
+results_frame = Frame(root, bg=BG)
+title_label = Label(results_frame, text="Ye did it! Congrats dear wanderer!", font=("Lucida Console", 12), bg=BG, fg="#594529")
+title_label.pack(pady=10)
+result_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+result_label.pack(pady=10)
+rank_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+rank_label.pack(pady=10)
+
+results_frame.place(x=0, y=0, width=500, height=700)
 
 # === END SETUP ===
 
