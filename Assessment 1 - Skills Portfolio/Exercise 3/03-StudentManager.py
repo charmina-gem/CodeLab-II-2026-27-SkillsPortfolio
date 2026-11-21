@@ -14,38 +14,60 @@ root.config(bg=BG)
 
 # === VARIABLES ===
 
-student_name: StringVar()
-student_num: StringVar()
-course1: StringVar()
-course2: StringVar()
-course3: StringVar()
-exam: StringVar()
-
-DATA_FILE = "studentMarks.txt"
+student_name = StringVar()
+student_num = StringVar()
+course1 = StringVar()
+course2 = StringVar()
+course3 = StringVar()
+exam = StringVar()
 
 # === FUNCTIONS ===
 
+# NEED TO MAKE:
 # add a sort by ascending and descending order filter
-
-# view individual student record
-# allows the user to select a student thenoutput their resutls as per menu item
 # how you enable the user to select the student is up to you (either a menu code or by searching the student's name/number)
-
 # show student with the highest and lowest total score
 # identify the student with the highest mark and output their results in same format
 
+# view individual student record
 def displayMenu():
-    menu_frame.tkraise()
+    main_frame.tkraise()
 
-# make it so that you can add new data/new students with all the required information
-# you should also be able to delete records by selecting a student by name or student number to delete their info from the file
 # allow the user to be able to select a student by name or student number to update their records - use a sub-menu to edit specific items
 
-# should be able to view all student records 
-# def addRow():
+# should be able to view all student records
+def addRow(name, num, marks, exam_mark, row_id=None):
+    coursework_total = sum(marks)
+    percent = (coursework_total + exam_mark) / 160 * 100
+    grade = calculateGrade(percent)
 
-# shows the name, number, total coursework mark, exam mark, overall percentage, student grade
-# def displayRecords():
+    values = (name, num, coursework_total, exam_mark, f"{percent:.1f}%", grade, marks[0], marks[1], marks[2])
+
+    if row_id is None:
+        table.insert("", END, values=values)
+    else:
+        table.item(row_id, values=values)
+
+# shows the name, number, total coursework  mark, exam mark, overall percentage, student grade
+def displayRecords():
+    with open("Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "r") as f:
+        lines = f.read().splitlines()
+
+    for line in lines[1:]:
+        if line.strip() == "":
+            continue
+        parts = line.split(",")
+        try:
+            num = int(parts[0])
+            name = parts[1]
+            marks = [int(parts[2]), int(parts[3]), int(parts[4])]
+            exam_mark = int(parts[5])
+        except (ValueError, IndexError):
+            continue
+
+        addRow(name, num, marks, exam_mark)
+    
+    # updateClass()
 
 # def saveRecords():
 
@@ -68,10 +90,13 @@ def calculateGrade(percent):
     else:
         return "F"
 
+# make it so that you can add new data/new students with all the required information
 # def newRecord():
 
+# allows the user to select a student thenoutput their resutls as per menu item
 # def updateRecord():
 
+# you should also be able to delete records by selecting a student by name or student number to delete their info from the file
 # def deleteRecord():
 
 # number of students in the class and class average
@@ -81,37 +106,61 @@ def calculateGrade(percent):
 
 main_frame = Frame(root, bg=BG)
 
-menu_label = Label(menu_frame, text="Student Management System", font=("Georgia", 12), bg=BG, fg="black")
+menu_label = Label(main_frame, text="Student Management System", font=("Georgia", 12), bg=BG, fg="black")
 menu_label.pack(pady=10)
-count_label = Label(main_frame, text=" Students in Class: 0")
-count_label.pack(pady=10)
+# count_label = Label(main_frame, text="Students in Class: 0")
+# count_label.pack(pady=10)
 
-menu_frame.place(x=0,  y=0, width=850, height=490)
+main_frame.place(x=0,  y=0, width=850, height=490)
 
 # == (LEFT) FORM FRAME ==
 
 # data is separated into number of students, student code (between 1000 and 9999), three course marks (out of 20), and examination mark (out of 100)
-
 form_frame = Frame(main_frame, bg=BG)
 
-form_label = Label(menu_frame, text="Student Details", font=("Georgia", 12), bg=BG, fg="black")
+form_label = Label(form_frame, text="Student Details", font=("Georgia", 12), bg=BG, fg="black")
 form_label.grid(row=0, column=0, columnspan=2, pady=10)
 
-add_button = Button(form_frame, text="Add Student", command=)
+fields = [
+    ("Name", student_name),
+    ("Student Number", student_num),
+    ("Course 1 (/20)", course1),
+    ("Course 2 (/20)", course2),
+    ("Course 3 (/20)", course3),
+    ("Exam (/100)", exam),
+]
 
-update_button = Button(form_frame, text="Update Selected", command=)
+for i, (text, var) in enumerate(fields, start=1):
+    Label(form_frame, text=text, font=("Georgia", 10), bg=BG, fg="black").grid(row=i, column=0, sticky=W, pady=4)
+    Entry(form_frame, textvariable=var, width=18).grid(row=i, column=1, pady=4, padx=5)
+    
+add_button = Button(form_frame, text="Add Student", width=20)
+add_button.grid(row=7, column=0, columnspan=2, pady=(15, 4))
 
-delete_button = Button(form_frame, text="Delete Selected")
+update_button = Button(form_frame, text="Update Selected", width=20)
+update_button.grid(row=8, column=0, columnspan=2, pady=4)
 
-clear_button = Button(form_frame, text="Clear Form")
+delete_button = Button(form_frame, text="Delete Selected", width=20)
+delete_button.grid(row=9, column=0, columnspan=2, pady=4)
 
-form_frame.pack(x=0)
+clear_button = Button(form_frame, text="Clear Form", width=20)
+clear_button.grid(row=10, column=0, columnspan=2, pady=4)
+
+form_frame.pack(side=LEFT, anchor=N, padx=20, pady=10)
 
 # == (RIGHT) TABLE FRAME ==
 
-table_Frame = Frame(main_frame, bg=BG)
+table_frame = Frame(main_frame, bg=BG)
 
-table_frame.pack
+columns = ("name", "num", "coursework", "exam", "percent", "grade", "c1", "c2", "c3")
+table = ttk.Treeview(table_frame, columns=columns, show="headings")
+for col in columns:
+    table.heading(col, text=col.capitalize())
+    table.column(col, width=70)
+table.pack(fill=BOTH, expand=TRUE)
+
+
+table_frame.pack(side=LEFT, fill=BOTH, expand=True, padx=20, pady=10)
 
 # === END SETUP ===
 
