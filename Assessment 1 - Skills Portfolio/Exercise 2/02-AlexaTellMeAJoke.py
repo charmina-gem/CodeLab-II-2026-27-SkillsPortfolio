@@ -45,6 +45,7 @@ def displayJoke():
 def showPunchline():
     punchline_label.config(text=current["punchline"])
 
+# === VARIABLES ===
 jokes = generateJokes()
 
 # === START FRAME ===
