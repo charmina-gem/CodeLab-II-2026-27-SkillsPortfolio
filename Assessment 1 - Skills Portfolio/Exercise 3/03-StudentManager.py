@@ -208,7 +208,20 @@ def deleteRecord():
         saveRecords()
 
 # number of students in the class and class average
-# def updateClass():
+def updateClass():
+    rows = table.get_children()
+    count = len(rows)
+
+    if count == 0:
+        average_text = "-"
+    else:
+        total_percent = 0
+        for row_id in rows:
+            v = table.item(row_id)["values"]
+            total_percent += (v[2] + v[3]) / 160 * 100
+        average_text = f"{total_percent / count:.1f}%"
+    
+    count_label.config(text=f"Students in Class: {count}      Class Average: {average_text}")
     
 # === MAIN MENU FRAME ===
 
@@ -216,8 +229,8 @@ main_frame = Frame(root, bg=BG)
 
 menu_label = Label(main_frame, text="Student Management System", font=("Georgia", 12), bg=BG, fg="black")
 menu_label.pack(pady=10)
-# count_label = Label(main_frame, text="Students in Class: 0")
-# count_label.pack(pady=10)
+count_label = Label(main_frame, text="Students in Class: 0      Class Average: -", font=("Georgia", 12), bg=BG, fg="black")
+count_label.pack(side=BOTTOM, anchor=W, padx=20, pady=(0, 10))
 
 main_frame.place(x=0,  y=0, width=850, height=490)
 
