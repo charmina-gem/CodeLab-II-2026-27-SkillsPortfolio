@@ -6,7 +6,7 @@ from tkinter import ttk
 
 root = Tk()
 root.title("Student Manager")
-root.geometry("900x500")
+root.geometry("900x580")
 root.resizable(0,0)
 
 BG = "#FFF5E3"
@@ -25,11 +25,8 @@ sort_choice = StringVar(value="Name")
 
 # === FUNCTIONS ===
 
-# view individual student record
 def displayMenu():
     main_frame.tkraise()
-
-# allow the user to be able to select a student by name or student number to update their records - use a sub-menu to edit specific items
 
 # should be able to view all student records
 def addRow(name, num, marks, exam_mark, row_id=None):
@@ -62,7 +59,6 @@ def displayRecords():
             continue
 
         addRow(name, num, marks, exam_mark)
-    
     updateClass()
 
 def saveRecords():
@@ -73,6 +69,19 @@ def saveRecords():
         for row_id in rows:
             v = table.item(row_id)["values"]
             f.write(f"{v[1]},{v[0]},{v[6]},{v[7]},{v[8]},{v[3]}\n")
+
+# view individual student record
+def viewSelected():
+    selected = table.selection()
+    if not selected:
+        messagebox.showwarning("Nothing selected", "Click a student in the table first.")
+        return
+    
+    v = table.item(selected[0])["values"]
+    message = (f"Name: {v[0]}\nStudent Number: {v[1]}\n"
+               f"Coursework: {v[2]} / 60\nExam: {v[3]} / 100\n"
+               f"Percentage: {v[4]}\nGrade: {v[5]}")
+    messagebox.showinfo("Student Record", message)
 
 def clickTable(event):
     if table.identify_region(event.x, event.y) in ("heading", "separator"):
@@ -285,7 +294,7 @@ menu_label.pack(pady=10)
 count_label = Label(main_frame, text="Students in Class: 0      Class Average: -", font=("Georgia", 12), bg=BG, fg="black")
 count_label.pack(side=BOTTOM, anchor=W, padx=20, pady=(0, 10))
 
-main_frame.place(x=0,  y=0, width=850, height=490)
+main_frame.place(x=0,  y=0, width=850, height=570)
 
 # == (LEFT) FORM FRAME ==
 
@@ -307,18 +316,21 @@ fields = [
 for i, (text, var) in enumerate(fields, start=1):
     Label(form_frame, text=text, font=("Georgia", 10), bg=BG, fg="black").grid(row=i, column=0, sticky=W, pady=4)
     Entry(form_frame, textvariable=var, width=18).grid(row=i, column=1, pady=4, padx=5)
-    
+
+view_button = Button(form_frame, text="View Selected", width=20, command=viewSelected)
+view_button.grid(row=7, column= 0, columnspan=2, pady=(10,3))
+
 add_button = Button(form_frame, text="Add Student", width=20, command=newRecord)
-add_button.grid(row=7, column=0, columnspan=2, pady=(15, 4))
+add_button.grid(row=8, column=0, columnspan=2, pady=3)
 
 update_button = Button(form_frame, text="Update Selected", width=20, command=updateRecord)
-update_button.grid(row=8, column=0, columnspan=2, pady=4)
+update_button.grid(row=9, column=0, columnspan=2, pady=3)
 
 delete_button = Button(form_frame, text="Delete Selected", width=20, command=deleteRecord)
-delete_button.grid(row=9, column=0, columnspan=2, pady=4)
+delete_button.grid(row=10, column=0, columnspan=2, pady=3)
 
 clear_button = Button(form_frame, text="Clear Form", width=20, command=clearForm)
-clear_button.grid(row=10, column=0, columnspan=2, pady=4)
+clear_button.grid(row=11, column=0, columnspan=2, pady=3)
 
 form_frame.pack(side=LEFT, anchor=N, padx=20, pady=10)
 
