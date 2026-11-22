@@ -71,11 +71,51 @@ def displayRecords():
 
 # def saveRecords():
 
-# def checkForm():
-
 # def fillForm():
 
 # def clearForm():
+
+def checkForm(ignore_row=None):
+    name = student_name.get().strip()
+    num = student_num.get().strip()
+
+    # checks name
+    if name == "":
+        messagebox.showerror("Error", "Please enter the student's name.")
+        return
+
+    # checks if number is valid
+    if not num.isdigit() or not (1000 <= int(num) <= 9999):
+        messagebox.showerror("Error", "Student number must be between 1000 and 9999.")
+        return
+    
+    # checks if number already exists
+    for row_id in table.get_children():
+        if row_id == ignore_row:
+            continue
+        if table.item(row_id)["values"][1] == int(num):
+            messagebox.showerror("Error", "That student number already exists.")
+            return
+    
+    # checks marks are numbers
+    try:
+        marks = [int(course1.get()), int(course2.get()), int(course3.get())]
+        exam_mark = int(exam.get())
+    except ValueError:
+        messagebox.showerror("Error", "Marks must be whole numbers.")
+        return
+
+    # checks marks are in the range given
+    for m in marks:
+        if m < 0 or m > 20:
+            messagebox.showerror("Error", "Each course mark must be between 0 and 20.")
+            return
+    if exam_mark < 0 or exam_mark > 100:
+        messagebox.showerror("Error", "Exam mark must be between 0 and 100.")
+        return
+    
+    # if all passes the checks, use the values
+    return name, int(num), marks, exam_mark
 
 # This function calculates the overall percentage into a letter rank or grade
 def calculateGrade(percent):
@@ -91,7 +131,13 @@ def calculateGrade(percent):
         return "F"
 
 # make it so that you can add new data/new students with all the required information
-# def newRecord():
+def newRecord():
+    result = checkForm()
+    if result is None:
+        return
+
+    name, num, marks, exam_mark = result
+    addRow(name, num, marks, exam_mark)
 
 # allows the user to select a student thenoutput their resutls as per menu item
 # def updateRecord():
@@ -134,7 +180,7 @@ for i, (text, var) in enumerate(fields, start=1):
     Label(form_frame, text=text, font=("Georgia", 10), bg=BG, fg="black").grid(row=i, column=0, sticky=W, pady=4)
     Entry(form_frame, textvariable=var, width=18).grid(row=i, column=1, pady=4, padx=5)
     
-add_button = Button(form_frame, text="Add Student", width=20)
+add_button = Button(form_frame, text="Add Student", width=20, command=newRecord)
 add_button.grid(row=7, column=0, columnspan=2, pady=(15, 4))
 
 update_button = Button(form_frame, text="Update Selected", width=20)
@@ -158,7 +204,6 @@ for col in columns:
     table.heading(col, text=col.capitalize())
     table.column(col, width=70)
 table.pack(fill=BOTH, expand=TRUE)
-
 
 table_frame.pack(side=LEFT, fill=BOTH, expand=True, padx=20, pady=10)
 
