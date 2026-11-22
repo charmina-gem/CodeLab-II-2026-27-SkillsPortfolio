@@ -25,9 +25,6 @@ exam = StringVar()
 
 # NEED TO MAKE:
 # add a sort by ascending and descending order filter
-# how you enable the user to select the student is up to you (either a menu code or by searching the student's name/number)
-# show student with the highest and lowest total score
-# identify the student with the highest mark and output their results in same format
 
 # view individual student record
 def displayMenu():
@@ -50,7 +47,7 @@ def addRow(name, num, marks, exam_mark, row_id=None):
 
 # shows the name, number, total coursework  mark, exam mark, overall percentage, student grade
 def displayRecords():
-    with open("Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "r") as f:
+    with open(r"Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "r") as f:
         lines = f.read().splitlines()
 
     for line in lines[1:]:
@@ -67,13 +64,13 @@ def displayRecords():
 
         addRow(name, num, marks, exam_mark)
     
-    # updateClass()
+    updateClass()
 
 def saveRecords():
     rows = table.get_children()
 
-    with open("Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "w") as f:
-        file.write(str(len(rows)) + "\n")
+    with open(r"Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "w") as f:
+        f.write(str(len(rows)) + "\n")
         for row_id in rows:
             v = table.item(row_id)["values"]
             f.write(f"{v[1]},{v[0]},{v[6]},{v[7]},{v[8]},{v[3]}\n")
@@ -173,6 +170,8 @@ def newRecord():
 
     name, num, marks, exam_mark = result
     addRow(name, num, marks, exam_mark)
+    saveRecords()
+    updateCount()
 
 # allows the user to select a student thenoutput their resutls as per menu item
 def updateRecord():
@@ -192,6 +191,7 @@ def updateRecord():
     addRow(name, num, marks, exam_mark, row_id)
 
     saveRecords()
+    updateCount()
     messagebox.showinfo("Updated", "Student details updated.")
 
 # you should also be able to delete records by selecting a student by name or student number to delete their info from the file
@@ -206,6 +206,7 @@ def deleteRecord():
         for row_id in selected:
             table.delete(row_id)
         saveRecords()
+        updateCount()
 
 # number of students in the class and class average
 def updateClass():
@@ -222,7 +223,41 @@ def updateClass():
         average_text = f"{total_percent / count:.1f}%"
     
     count_label.config(text=f"Students in Class: {count}      Class Average: {average_text}")
+
+# show student with the highest and lowest total score
+def showBest(highest):
+    rows = table.get_children()
+    if len(rows) == 0:
+        messagebox.showinfo("No students", "There are no students yet.")
+        return
     
+    scores = {}
+    for row_id in rows:
+        v = table.item(row_id)["values"]
+        scores[row_id] = v[2] + v[3]
+    
+    if highest:
+        best = max(scores.values())
+        title = "Highest Score"
+    else:
+        best = min(scores.values())
+        title = "Lowest Score"
+
+    winner = next(row_id for row_id in rows if scores[row_id] == best)
+
+    v = table.item(winner)["values"]
+    message = (f"Name: {v[0]}\n"
+               f"Student Number: {v[1]}\n"
+               f"Coursework: {v[2]} / 60\n"
+               f"Exam: {v[3]} / 100\n"
+               f"Total: {v[2] + v[3]} / 160\n"
+               f"Percentage: {v[4]}\n"
+               f"Grade: {v[5]}")
+
+    table.selection_set(winner)
+    table.see(winner)
+    messagebox.showinfo(title, message)
+
 # === MAIN MENU FRAME ===
 
 main_frame = Frame(root, bg=BG)
@@ -273,6 +308,19 @@ form_frame.pack(side=LEFT, anchor=N, padx=20, pady=10)
 
 table_frame = Frame(main_frame, bg=BG)
 
+# = TOOLS FRAME =
+
+tools_frame = Frame(table_frame, bg=BG)
+best_row = Frame(tools_frame, bg=BG)
+best_row.pack(fill=X, pady=(6, 0))
+highest_button = Button(best_row, text="Show Highest Score", width=20, command=lambda: showBest(True))
+highest_button.pack(side=LEFT, padx=(0, 4))
+lowest_button = Button(best_row, text="Show Lowest Score", width=20, command=lambda: showBest(False))
+lowest_button.pack(side=LEFT, padx=4)
+
+tools_frame.pack(side=BOTTOM, fill=X, pady=(8, 0))
+
+# = TABLE AND SCROLLBAR =
 tree_frame = Frame(table_frame, bg=BG)
 tree_frame.pack(side=TOP, fill=BOTH, expand=True)
 
