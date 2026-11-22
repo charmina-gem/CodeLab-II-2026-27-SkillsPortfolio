@@ -273,13 +273,23 @@ form_frame.pack(side=LEFT, anchor=N, padx=20, pady=10)
 
 table_frame = Frame(main_frame, bg=BG)
 
-columns = ("name", "num", "coursework", "exam", "percent", "grade", "c1", "c2", "c3")
-table = ttk.Treeview(table_frame, columns=columns, show="headings")
-for col in columns:
-    table.heading(col, text=col.capitalize())
-    table.column(col, width=70)
-table.pack(fill=BOTH, expand=TRUE)
+tree_frame = Frame(table_frame, bg=BG)
+tree_frame.pack(side=TOP, fill=BOTH, expand=True)
 
+columns = ("Name", "Number", "Coursework", "Exam", "Percent", "Grade")
+hidden_columns = ("C1", "C2", "C3")
+
+table = ttk.Treeview(tree_frame, columns=columns + hidden_columns, displaycolumns=columns, show="headings", height=11)
+widths = {"Name": 140, "Number": 70, "Coursework": 90, "Exam" :60, "Percent": 80, "Grade": 50}
+for col in columns:
+    table.heading(col, text=col)
+    table.column(col, width=widths[col], anchor=CENTER)
+
+scrollbar = Scrollbar(tree_frame, orient=VERTICAL, command=table.yview)
+table.config(yscrollcommand=scrollbar.set)
+
+table.pack(side=LEFT, fill=BOTH, expand=True)
+scrollbar.pack(side=RIGHT, fill=Y)
 
 table.bind("<<TreeviewSelect>>", fillForm)
 table.bind("<Button-1>", clickTable)
