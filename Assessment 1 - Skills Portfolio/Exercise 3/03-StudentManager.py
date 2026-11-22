@@ -170,7 +170,7 @@ def newRecord():
     name, num, marks, exam_mark = result
     addRow(name, num, marks, exam_mark)
     saveRecords()
-    updateCount()
+    updateClass()
 
 # allows the user to select a student thenoutput their resutls as per menu item
 def updateRecord():
@@ -190,7 +190,7 @@ def updateRecord():
     addRow(name, num, marks, exam_mark, row_id)
 
     saveRecords()
-    updateCount()
+    updateClass()
     messagebox.showinfo("Updated", "Student details updated.")
 
 # you should also be able to delete records by selecting a student by name or student number to delete their info from the file
@@ -205,7 +205,7 @@ def deleteRecord():
         for row_id in selected:
             table.delete(row_id)
         saveRecords()
-        updateCount()
+        updateClass()
 
 # number of students in the class and class average
 def updateClass():
