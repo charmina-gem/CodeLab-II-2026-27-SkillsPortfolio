@@ -21,10 +21,9 @@ course2 = StringVar()
 course3 = StringVar()
 exam = StringVar()
 
-# === FUNCTIONS ===
+sort_choice = StringVar(value="Name")
 
-# NEED TO MAKE:
-# add a sort by ascending and descending order filter
+# === FUNCTIONS ===
 
 # view individual student record
 def displayMenu():
@@ -224,6 +223,25 @@ def updateClass():
     
     count_label.config(text=f"Students in Class: {count}      Class Average: {average_text}")
 
+# add a sort by ascending and descending order filter
+def sortKey(row_id):
+    v = table.item(row_id)["values"]
+    choice = sort_choice.get()
+
+    if choice == "Name":
+        return str(v[0]).lower()
+    elif choice == "Student Number":
+        return int(v[1])
+    else:
+        return v[2] + v[3]
+
+def sortTable(descending):
+    rows = list(table.get_children())
+    rows.sort(key=sortKey, reverse=descending)
+
+    for position, row_id in enumerate(rows):
+        table.move(row_id, "", position)
+
 # show student with the highest and lowest total score
 def showBest(highest):
     rows = table.get_children()
@@ -311,6 +329,21 @@ table_frame = Frame(main_frame, bg=BG)
 # = TOOLS FRAME =
 
 tools_frame = Frame(table_frame, bg=BG)
+
+# sorting
+sort_row = Frame(tools_frame, bg=BG)
+sort_row.pack(fill=X)
+sorting_label = Label(sort_row, text="Sort By:", font=("Georgia", 10), bg=BG, fg="black")
+sorting_label.pack(side=LEFT)
+sort_box = ttk.Combobox(sort_row, textvariable=sort_choice, state="readonly", width=14, values=("Name", "Student Number", "Total Score"))
+sort_box.pack(side=LEFT, padx=5)
+ascending_button = Button(sort_row, text="Ascending", width=11, command=lambda: sortTable(False))
+ascending_button.pack(side=LEFT, padx=2)
+descending_button = Button(sort_row, text="Descending", width=11, command=lambda: sortTable(True))
+descending_button.pack(side=LEFT, padx=2)
+
+# highest to lowest
+
 best_row = Frame(tools_frame, bg=BG)
 best_row.pack(fill=X, pady=(6, 0))
 highest_button = Button(best_row, text="Show Highest Score", width=20, command=lambda: showBest(True))
