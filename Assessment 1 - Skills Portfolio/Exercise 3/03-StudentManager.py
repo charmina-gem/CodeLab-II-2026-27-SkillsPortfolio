@@ -69,11 +69,46 @@ def displayRecords():
     
     # updateClass()
 
-# def saveRecords():
+def saveRecords():
+    rows = table.get_children()
 
-# def fillForm():
+    with open("Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "w") as f:
+        file.write(str(len(rows)) + "\n")
+        for row_id in rows:
+            v = table.item(row_id)["values"]
+            f.write(f"{v[1]},{v[0]},{v[6]},{v[7]},{v[8]},{v[3]}\n")
 
-# def clearForm():
+def clickTable(event):
+    if table.identify_region(event.x, event.y) in ("heading", "separator"):
+        return
+
+    row = table.identify_row(event.y)
+
+    if row == "" or row in table.selection():
+        clearForm()
+        return "break"
+
+def fillForm(event=None):
+    selected = table.selection()
+    if not selected:
+        return
+    
+    v = table.item(selected[0])["values"]
+    student_name.set(v[0])
+    student_num.set(v[1])
+    course1.set(v[6])
+    course2.set(v[7])
+    course3.set(v[8])
+    exam.set(v[3])
+
+def clearForm():
+    table.selection_remove(table.selection())
+    student_name.set("")
+    student_num.set("")
+    course1.set("")
+    course2.set("")
+    course3.set("")
+    exam.set("")
 
 def checkForm(ignore_row=None):
     name = student_name.get().strip()
@@ -140,10 +175,37 @@ def newRecord():
     addRow(name, num, marks, exam_mark)
 
 # allows the user to select a student thenoutput their resutls as per menu item
-# def updateRecord():
+def updateRecord():
+    selected = table.selection()
+    if not selected:
+        messagebox.showwarning("Nothing selected", "Click a student in the table first.")
+        return
+
+    row_id = selected[0]
+
+    result = checkForm(ignore_row=row_id)
+    if result is None:
+        return
+    
+    name, num, marks, exam_mark = result
+
+    addRow(name, num, marks, exam_mark, row_id)
+
+    saveRecords()
+    messagebox.showinfo("Updated", "Student details updated.")
 
 # you should also be able to delete records by selecting a student by name or student number to delete their info from the file
-# def deleteRecord():
+def deleteRecord():
+    selected = table.selection()
+
+    if not selected:
+        messagebox.showwarning("Nothing selected", "Click a student in the table first.")
+        return
+
+    if messagebox.askyesno("Confirm", "Delete the selected student?"):
+        for row_id in selected:
+            table.delete(row_id)
+        saveRecords()
 
 # number of students in the class and class average
 # def updateClass():
@@ -183,13 +245,13 @@ for i, (text, var) in enumerate(fields, start=1):
 add_button = Button(form_frame, text="Add Student", width=20, command=newRecord)
 add_button.grid(row=7, column=0, columnspan=2, pady=(15, 4))
 
-update_button = Button(form_frame, text="Update Selected", width=20)
+update_button = Button(form_frame, text="Update Selected", width=20, command=updateRecord)
 update_button.grid(row=8, column=0, columnspan=2, pady=4)
 
-delete_button = Button(form_frame, text="Delete Selected", width=20)
+delete_button = Button(form_frame, text="Delete Selected", width=20, command=deleteRecord)
 delete_button.grid(row=9, column=0, columnspan=2, pady=4)
 
-clear_button = Button(form_frame, text="Clear Form", width=20)
+clear_button = Button(form_frame, text="Clear Form", width=20, command=clearForm)
 clear_button.grid(row=10, column=0, columnspan=2, pady=4)
 
 form_frame.pack(side=LEFT, anchor=N, padx=20, pady=10)
@@ -204,6 +266,10 @@ for col in columns:
     table.heading(col, text=col.capitalize())
     table.column(col, width=70)
 table.pack(fill=BOTH, expand=TRUE)
+
+
+table.bind("<<TreeviewSelect>>", fillForm)
+table.bind("<Button-1>", clickTable)
 
 table_frame.pack(side=LEFT, fill=BOTH, expand=True, padx=20, pady=10)
 
