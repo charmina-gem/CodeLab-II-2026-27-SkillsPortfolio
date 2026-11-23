@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
+import json
 
 # === START SETUP ===
 
@@ -23,6 +24,8 @@ exam = StringVar()
 
 sort_choice = StringVar(value="Name")
 
+FILE = r"Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.json"
+
 # === FUNCTIONS ===
 
 def displayMenu():
@@ -43,32 +46,26 @@ def addRow(name, num, marks, exam_mark, row_id=None):
 
 # shows the name, number, total coursework  mark, exam mark, overall percentage, student grade
 def displayRecords():
-    with open(r"Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "r") as f:
-        lines = f.read().splitlines()
+    with open(FILE, "r") as f:
+        students = json.load(f)
 
-    for line in lines[1:]:
-        if line.strip() == "":
-            continue
-        parts = line.split(",")
-        try:
-            num = int(parts[0])
-            name = parts[1]
-            marks = [int(parts[2]), int(parts[3]), int(parts[4])]
-            exam_mark = int(parts[5])
-        except (ValueError, IndexError):
-            continue
-
-        addRow(name, num, marks, exam_mark)
-    updateClass()
+    for s in students:
+        addRow(s["name"], s["number"], s["coursework"], s["exam"])
+        updateClass()
 
 def saveRecords():
-    rows = table.get_children()
+    students = []
 
-    with open(r"Assessment 1 - Skills Portfolio\Exercise 3\studentMarks.txt", "w") as f:
-        f.write(str(len(rows)) + "\n")
-        for row_id in rows:
-            v = table.item(row_id)["values"]
-            f.write(f"{v[1]},{v[0]},{v[6]},{v[7]},{v[8]},{v[3]}\n")
+    for row_id in table.get_children():
+        v = table.item(row_id)["values"]
+        students.append({
+            "number": v[1],
+            "name": v[0],
+            "coursework": [v[6], v[7], v[8]],
+            "exam": v[3],
+        })
+    with open(FILE, "w") as f:
+        json.dump(students, f, indent=4)
 
 # view individual student record
 def viewSelected():
