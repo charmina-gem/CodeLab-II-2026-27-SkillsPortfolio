@@ -1,17 +1,44 @@
 from tkinter import *
 from tkinter import messagebox
 import random
+import pygame
+from PIL import ImageTk, Image
 
 # === START SETUP ===
 
 root = Tk()
-root.title("Ye Olde Maths Quiz")
+root.title("⋆⊱༻ཐི Witch's Apprentice ཋྀ༺⊰⋆")
 root.geometry("500x700")
 root.resizable(0, 0)
+root.iconbitmap("Assessment 1 - Skills Portfolio\Exercise 1\Assets\icon.ico")
 
-BG = "#FFF5E3"
+BG = "#fffde5"
 score = 0
 root.config(bg=BG)
+
+# == MUSIC ==
+
+pygame.mixer.init()
+pygame.mixer.music.load(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\bg_music.mp3")
+pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.play(loops=-1)
+music_on = True
+
+def toggleMusic():
+    global music_on
+    if music_on:
+        pygame.mixer.music.pause()
+        music_button.config(text="🔇 Music: Off")
+    else:
+        pygame.mixer.music.unpause()
+        music_button.config(text="🔊 Music: On")
+    music_on = not music_on
+
+music_button = Button(root, text="🔊 Music: On", font=("Candara", 10), bg="#1c1f43", fg="#f8f4c2", command=toggleMusic)
+music_button.place(x=395, y=25)
+
+bell_sound = pygame.mixer.Sound(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\bell.wav")
+bell_sound.set_volume(0.8)
 
 # === QUIZ DICTIONARY ===
 
@@ -26,9 +53,17 @@ quiz = {
 
 # === FUNCTIONS ===
 
+def displayTitle():
+    title_frame.tkraise()
+    music_button.lift()
+
 # Displays the difficulty level menu when you first open the quiz
 def displayMenu():
     menu_frame.tkraise()
+
+def beginQuiz():
+    bell_sound.play()
+    displayMenu()
 
 # Defines the values based on the difficulty selected
 def randomInt(difficulty):
@@ -142,25 +177,45 @@ def backToMenu():
     if messagebox.askyesno("Go Back", "Return to the menu? Thy current progress will be lost"):
         displayMenu()
 
+# === TITLE FRAME ===
+
+title_frame = Frame(root, bg=BG)
+
+try:
+    bg_image = ImageTk.PhotoImage(Image.open(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\title_background.png").resize((500, 700)))
+    bg_label = Label(title_frame, image=bg_image)
+    bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+except (FileNotFoundError, OSError):
+    pass
+
+start_button = Button(title_frame, text="Begin", font=("Bookman Old Style", 12), bg="#1c1f43", fg="#f8f4c2", command=beginQuiz)
+start_button.place(relx=0.5, rely=0.85, anchor=CENTER)
+
+title_frame.place(x=0, y=0, width=500, height=700)
+
 # === MENU FRAME ===
 
 menu_frame = Frame(root, bg=BG)
-menu_label = Label(menu_frame, text="Welcome brave traveler to the Ye Olde Maths Quiz Tavern!", font=("Bookman Old Style", 12), bg=BG, fg="#594529")
-menu_label.pack(pady=5)
-menu_label = Label(menu_frame, text="Please select thy difficulty:", font=("Lucida Console", 10), bg=BG, fg="#594529")
-menu_label.pack(pady=5)
+
+menu_bg_image = ImageTk.PhotoImage(Image.open(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\menu_background.png").resize((500, 700)))
+menu_bg_label = Label(menu_frame, image=menu_bg_image).place(x=0, y=0, relwidth=1, relheight=1)
+
+menu_label = Label(menu_frame, text="You enter the guild house...", font=("Bookman Old Style", 12), bg="#c1a37f", fg="#251c18").pack(pady=45)
+text_label = Label(menu_frame, text="\"Ah, the new hire has finally arrived!\"", font=("Candara", 12), bg="#fffde5", fg="#251c18").pack(padx=(30, 0), pady=20, anchor="w")
+text_label = Label(menu_frame, text="\"I am Head Witch Circe and welcome\nto your first day as an apprentice.\nYou have classes today with our\nfinest brewers.\"", font=("Candara", 12), bg="#fffde5", fg="#251c18", justify=LEFT).pack(padx=(30, 0), anchor="w")
+menu_label = Label(menu_frame, text="\"Head to one of your lessons when\nyou're ready.\"", font=("Candara", 12), bg=BG, fg="#251c18", justify=LEFT).pack(padx=(30, 0), pady=15, anchor="w")
 
 # Easy Button
-easy_button = Button(menu_frame, text="Easy", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(1)])
-easy_button.pack(pady=10)
+easy_button = Button(menu_frame, text="˚.⋆꒰১ Easy Lesson in Mana Elixirs ໒꒱⋆.˚", font=("Candara", 12), bg="#92633e", fg="#fffde5", command=lambda: [startQuiz(1)])
+easy_button.pack(pady=(130, 8))
 
 # Moderate Button
-moderate_button = Button(menu_frame, text="Moderate", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(2)])
-moderate_button.pack(pady=10)
+moderate_button = Button(menu_frame, text="⋆˖⁺‧₊☽ Moderate Lesson in Nightshade Poisons ☾₊‧⁺˖⋆", font=("Candara", 12), bg="#92633e", fg="#fffde5", command=lambda: [startQuiz(2)])
+moderate_button.pack(pady=8)
 
 # Advanced Button
-advanced_button = Button(menu_frame, text="Advanced", font=("Lucida Console", 10), bg=BG, fg="#594529", command=lambda: [startQuiz(3)])
-advanced_button.pack(pady=10)
+advanced_button = Button(menu_frame, text="⁺‧₊˚ ཐི⋆ Advanced Lesson in Love Potions ⋆ཋྀ ˚₊‧⁺", font=("Candara", 12), bg="#92633e", fg="#fffde5", command=lambda: [startQuiz(3)])
+advanced_button.pack(pady=8)
 
 menu_frame.place(x=0, y=0, width=500, height=700)
 
@@ -168,17 +223,17 @@ menu_frame.place(x=0, y=0, width=500, height=700)
 
 quiz_frame = Frame(root, bg=BG)
 
-question_label = Label(quiz_frame, text=f"Question {quiz["question"]} of 10", font=("Lucida Console", 12), bg=BG, fg="#594529")
+question_label = Label(quiz_frame, text=f"Question {quiz["question"]} of 10", font=("Candara", 12), bg=BG, fg="#251c18")
 question_label.pack(pady=10)
-score_label = Label(quiz_frame, text=f"Score: {score}", font=("Lucida Console", 12), bg=BG, fg="#594529")
+score_label = Label(quiz_frame, text=f"Score: {score}", font=("Candara", 12), bg=BG, fg="#251c18")
 score_label.pack(pady=10)
-problem_label = Label(quiz_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+problem_label = Label(quiz_frame, text="", font=("Candara", 12), bg=BG, fg="#251c18")
 problem_label.pack(pady=10)
-answer_entry = Entry(quiz_frame, font=("Lucida Console", 12), bg=BG, fg="#594529")
+answer_entry = Entry(quiz_frame, font=("Candara", 12), bg=BG, fg="#251c18")
 answer_entry.pack(pady=10)
-submit_button = Button(quiz_frame, text="Submit", font=("Lucida Console", 12), bg=BG, fg="#594529", command=isCorrect)
+submit_button = Button(quiz_frame, text="Submit", font=("Candara", 12), bg=BG, fg="#251c18", command=isCorrect)
 submit_button.pack(pady=10)
-back_button = Button(quiz_frame, text="Back to Menu", font=("Lucida Console", 12), bg=BG, fg="#594529", command=backToMenu)
+back_button = Button(quiz_frame, text="Back to Menu", font=("Candara", 12), bg=BG, fg="#251c18", command=backToMenu)
 back_button.pack(pady=10)
 
 quiz_frame.place(x=0, y=0, width=500, height=700)
@@ -186,18 +241,18 @@ quiz_frame.place(x=0, y=0, width=500, height=700)
 # === RESULTS FRAME ===
 
 results_frame = Frame(root, bg=BG)
-title_label = Label(results_frame, text="Ye did it! Congrats dear wanderer!", font=("Lucida Console", 12), bg=BG, fg="#594529")
+title_label = Label(results_frame, text="Ye did it! Congrats dear wanderer!", font=("Candara", 12), bg=BG, fg="#251c18")
 title_label.pack(pady=10)
-result_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+result_label = Label(results_frame, text="", font=("Candara", 12), bg=BG, fg="#251c18")
 result_label.pack(pady=10)
-rank_label = Label(results_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
+rank_label = Label(results_frame, text="", font=("Candara", 12), bg=BG, fg="#251c18")
 rank_label.pack(pady=10)
-replay_button = Button(results_frame, text="Would thou like to play again?", font=("Lucida Console", 12), bg=BG, fg="#594529", command=replayQuiz)
+replay_button = Button(results_frame, text="Would thou like to play again?", font=("Candara", 12), bg=BG, fg="#251c18", command=replayQuiz)
 replay_button.pack(pady=10)
 
 results_frame.place(x=0, y=0, width=500, height=700)
 
 # === END SETUP ===
 
-displayMenu()
+displayTitle()
 root.mainloop()
