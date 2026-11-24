@@ -40,6 +40,29 @@ music_button.place(x=395, y=25)
 bell_sound = pygame.mixer.Sound(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\bell.wav")
 bell_sound.set_volume(0.8)
 
+difficulty_sounds = {
+    1: pygame.mixer.Sound(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\easy.wav"),
+    2: pygame.mixer.Sound(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\moderate.wav"),
+    3: pygame.mixer.Sound(r"Assessment 1 - Skills Portfolio\Exercise 1\Assets\advanced.wav")
+}
+
+# == BACKGROUNDS ==
+
+def loadBg(name):
+    return ImageTk.PhotoImage(Image.open(rf"Assessment 1 - Skills Portfolio\Exercise 1\Assets\{name}"))
+
+quiz_backgrounds = {
+    1: loadBg("easy_bg.png"),
+    2: loadBg("moderate_bg.png"),
+    3: loadBg("advanced_bg.png")
+}
+
+witches = {
+    1: "Lady Chi",
+    2: "Lady Belladonna",
+    3: "Lady Ambrosia"
+}
+
 # === QUIZ DICTIONARY ===
 
 # A dictionary that contains the base of the quiz's information
@@ -159,6 +182,9 @@ def displayResults():
 
 # The function that starts and sets the quiz
 def startQuiz(difficulty):
+    difficulty_sounds[difficulty].play()
+    quiz_bg_label.config(image=quiz_backgrounds[difficulty])
+    witch_label.config(text=witches[difficulty])
     global score
     score = 0
     quiz["question"] = 1
@@ -223,15 +249,20 @@ menu_frame.place(x=0, y=0, width=500, height=700)
 
 quiz_frame = Frame(root, bg=BG)
 
-question_label = Label(quiz_frame, text=f"Question {quiz["question"]} of 10", font=("Candara", 12), bg=BG, fg="#251c18")
-question_label.pack(pady=10)
+quiz_bg_label = Label(quiz_frame)
+quiz_bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+witch_label = Label(quiz_frame, text="", font=("Bookman Old Style", 12), bg="#c1a37f", fg="#251c18", justify=RIGHT)
+witch_label.place(relx=0.65, rely=0.09, anchor="center")
+
+question_label = Label(quiz_frame, text=f"Brewed {quiz["question"]} of 10 bottles", font=("Candara", 12), bg="#fff7e9", fg="#251c18")
+question_label.pack(pady=250)
 score_label = Label(quiz_frame, text=f"Score: {score}", font=("Candara", 12), bg=BG, fg="#251c18")
 score_label.pack(pady=10)
-problem_label = Label(quiz_frame, text="", font=("Candara", 12), bg=BG, fg="#251c18")
-problem_label.pack(pady=10)
+problem_label = Label(quiz_frame, text="", font=("Candara", 12), bg="#fff7e9", fg="#251c18")
+problem_label.pack(pady=50)
 answer_entry = Entry(quiz_frame, font=("Candara", 12), bg=BG, fg="#251c18")
 answer_entry.pack(pady=10)
-submit_button = Button(quiz_frame, text="Submit", font=("Candara", 12), bg=BG, fg="#251c18", command=isCorrect)
+submit_button = Button(quiz_frame, text="Submit", font=("Candara", 12), bg="#fff7e9", fg="#251c18", command=isCorrect)
 submit_button.pack(pady=10)
 back_button = Button(quiz_frame, text="Back to Menu", font=("Candara", 12), bg=BG, fg="#251c18", command=backToMenu)
 back_button.pack(pady=10)
