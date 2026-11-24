@@ -65,7 +65,6 @@ def displayProblem(difficulty):
     problem_label.config(text=f"{num1} {operation} {num2} = ?")
     score_label.config(text=f"Score: {score}")
     question_label.config(text=f"Question {quiz["question"]} out of 10")
-    feedback_label.config(text="")
     answer_entry.delete(0, END)
 
 # The function that checks the user's answer and gives feedback accordingly
@@ -74,7 +73,7 @@ def isCorrect():
     try:
         user_answer = int(answer_entry.get())
     except ValueError:
-        feedback_label.config(text="Please enter a number!")
+        messagebox.showwarning("Hold on!", "Please enter a number!")
         return
 
     answer_entry.delete(0, END)
@@ -84,23 +83,22 @@ def isCorrect():
             score += 10
         else:
             score += 5
-        feedback_label.config(text="Correct!")
         score_label.config(text=f"Score: {score}")
         quiz["question"] += 1
-        submit_button.config(text="Next", command=nextQuestion)
+        messagebox.showinfo("Correct!", "Correct!")
+        nextQuestion()
 
     elif quiz["attempt"] == 1:
         quiz["attempt"] = 2
-        feedback_label.config(text="Wrong! Try again for half points.")
+        messagebox.showwarning("Wrong!", "Wrong! Try again for half points.")
 
     else:
-        feedback_label.config(text=f"Wrong! The answer was {quiz["answer"]}.")
         quiz["question"] += 1
-        submit_button.config(text="Next", command=nextQuestion)
+        messagebox.showerror("Wrong!", f"Wrong! THe answer was {quiz["answer"]}")
+        nextQuestion()
 
 # This function moves to the next question in the quiz
 def nextQuestion():
-    submit_button.config(text="Submit", command=isCorrect)
     if quiz["question"] == 11:
         displayResults()
     else:
@@ -139,6 +137,11 @@ def replayQuiz():
     else:
         rank_label.config(text="Until next time!")
 
+# Back to Start Button
+def backToMenu():
+    if messagebox.askyesno("Go Back", "Return to the menu? Thy current progress will be lost"):
+        displayMenu()
+
 # === MENU FRAME ===
 
 menu_frame = Frame(root, bg=BG)
@@ -175,8 +178,8 @@ answer_entry = Entry(quiz_frame, font=("Lucida Console", 12), bg=BG, fg="#594529
 answer_entry.pack(pady=10)
 submit_button = Button(quiz_frame, text="Submit", font=("Lucida Console", 12), bg=BG, fg="#594529", command=isCorrect)
 submit_button.pack(pady=10)
-feedback_label = Label(quiz_frame, text="", font=("Lucida Console", 12), bg=BG, fg="#594529")
-feedback_label.pack(pady=10)
+back_button = Button(quiz_frame, text="Back to Menu", font=("Lucida Console", 12), bg=BG, fg="#594529", command=backToMenu)
+back_button.pack(pady=10)
 
 quiz_frame.place(x=0, y=0, width=500, height=700)
 
